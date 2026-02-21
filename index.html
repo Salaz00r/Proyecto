@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TiendaSara</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8f7f4; color: #1a1a1a; }
+
+   
+        nav {
+            background: white; border-bottom: 1px solid #e8e4df;
+            padding: 0 40px; height: 60px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 1.2rem; font-weight: 700; color: #1a1a1a; text-decoration: none; }
+        .logo span { color: #e05c2a; }
+        .nav-links { display: flex; gap: 32px; list-style: none; }
+        .nav-links a { text-decoration: none; color: #666; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: #1a1a1a; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .nav-search {
+            border: 1px solid #e0dbd4; border-radius: 8px; padding: 7px 14px;
+            font-size: 0.85rem; background: #f8f7f4; color: #1a1a1a;
+            width: 180px; font-family: 'Inter', sans-serif;
+        }
+        .nav-search:focus { outline: none; border-color: #e05c2a; }
+        .nav-cart {
+            background: #1a1a1a; color: white; text-decoration: none;
+            padding: 7px 18px; border-radius: 8px; font-size: 0.85rem;
+            font-weight: 600; display: flex; align-items: center; gap: 8px;
+            transition: background 0.2s;
+        }
+        .nav-cart:hover { background: #333; }
+        .cart-num {
+            background: #e05c2a; border-radius: 50%;
+            width: 18px; height: 18px; display: flex; align-items: center;
+            justify-content: center; font-size: 0.65rem; font-weight: 700;
+        }
+
+      
+        .hero {
+            background: #1a1a1a; color: white;
+            padding: 80px 40px;
+            display: flex; align-items: center;
+            justify-content: space-between; gap: 40px;
+        }
+        .hero-left { max-width: 520px; }
+        .hero-tag {
+            display: inline-block;
+            background: rgba(224,92,42,0.2); color: #f07848;
+            border: 1px solid rgba(224,92,42,0.3);
+            padding: 4px 14px; border-radius: 100px;
+            font-size: 0.75rem; font-weight: 600;
+            letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 24px;
+        }
+        .hero h1 { font-size: 3rem; font-weight: 700; line-height: 1.1; margin-bottom: 20px; letter-spacing: -0.02em; }
+        .hero h1 span { color: #e05c2a; }
+        .hero p { color: #aaa; font-size: 1rem; line-height: 1.7; margin-bottom: 36px; }
+        .hero-btns { display: flex; gap: 12px; }
+        .btn-main {
+            background: #e05c2a; color: white; border: none;
+            padding: 13px 28px; border-radius: 8px; font-size: 0.9rem;
+            font-weight: 600; cursor: pointer; text-decoration: none;
+            display: inline-block; transition: background 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .btn-main:hover { background: #c94d1e; }
+        .btn-outline {
+            background: none; color: #aaa; border: 1px solid #333;
+            padding: 13px 28px; border-radius: 8px; font-size: 0.9rem;
+            font-weight: 500; cursor: pointer; text-decoration: none;
+            display: inline-block; transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .btn-outline:hover { border-color: #aaa; color: white; }
+        .hero-stats { display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
+        .hero-stat {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 16px 24px; text-align: center; min-width: 120px;
+        }
+        .hero-stat-n { font-size: 1.8rem; font-weight: 700; color: #e05c2a; }
+        .hero-stat-l { font-size: 0.75rem; color: #888; margin-top: 2px; }
+
+        .section { padding: 60px 40px; }
+        .section-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .section-title { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.01em; }
+        .see-all { color: #e05c2a; text-decoration: none; font-size: 0.85rem; font-weight: 500; }
+        .see-all:hover { text-decoration: underline; }
+
+        .cats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .cat-card {
+            background: white; border: 1px solid #e8e4df; border-radius: 12px;
+            padding: 28px 20px; text-align: center; cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            text-decoration: none; color: #1a1a1a; display: block;
+        }
+        .cat-card:hover { border-color: #e05c2a; box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+        .cat-icon { font-size: 2rem; margin-bottom: 10px; }
+        .cat-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
+        .cat-count { color: #999; font-size: 0.8rem; }
+
+    
+        .products-section { background: white; padding: 60px 40px; }
+        .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .product-card {
+            border: 1px solid #e8e4df; border-radius: 12px; overflow: hidden;
+            background: white; transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        .product-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.09); border-color: #d0cbc4; }
+        .product-img {
+            background: #f8f7f4; height: 160px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3.5rem; position: relative;
+        }
+        .prod-badge {
+            position: absolute; top: 10px; left: 10px;
+            padding: 3px 10px; border-radius: 100px; font-size: 0.7rem; font-weight: 700;
+        }
+        .badge-off { background: #e05c2a; color: white; }
+        .badge-new { background: #1a1a1a; color: white; }
+        .product-info { padding: 16px; }
+        .product-cat { color: #999; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+        .product-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 14px; }
+        .product-footer { display: flex; align-items: center; justify-content: space-between; }
+        .price { font-weight: 700; font-size: 1rem; }
+        .price-old { text-decoration: line-through; color: #bbb; font-size: 0.85rem; margin-right: 6px; font-weight: 400; }
+        .price-new { color: #e05c2a; }
+        .add-btn {
+            background: #1a1a1a; color: white; border: none;
+            width: 34px; height: 34px; border-radius: 8px;
+            font-size: 1.1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .add-btn:hover { background: #e05c2a; }
+        .add-btn.done { background: #22a85a; }
+
+   
+        .banner-wrap { padding: 0 40px 60px; }
+        .banner {
+            background: #e05c2a; border-radius: 16px; padding: 48px 56px;
+            display: flex; justify-content: space-between; align-items: center; gap: 40px;
+        }
+        .banner h2 { font-size: 1.8rem; font-weight: 700; color: white; letter-spacing: -0.02em; margin-bottom: 8px; }
+        .banner p { color: rgba(255,255,255,0.75); }
+        .btn-white {
+            background: white; color: #e05c2a; border: none;
+            padding: 13px 28px; border-radius: 8px; font-size: 0.9rem;
+            font-weight: 700; cursor: pointer; white-space: nowrap;
+            font-family: 'Inter', sans-serif; text-decoration: none;
+            display: inline-block; transition: opacity 0.2s;
+        }
+        .btn-white:hover { opacity: 0.9; }
+
+
+        .reviews-section { padding: 60px 40px; }
+        .reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .review-card { background: white; border: 1px solid #e8e4df; border-radius: 12px; padding: 24px; }
+        .stars { color: #f5a623; font-size: 0.85rem; margin-bottom: 12px; letter-spacing: 2px; }
+        .review-text { color: #444; font-size: 0.9rem; line-height: 1.7; margin-bottom: 16px; }
+        .review-author { font-weight: 600; font-size: 0.85rem; }
+
+
+        footer { background: #1a1a1a; color: white; padding: 48px 40px 24px; }
+        .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+        .footer-logo { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
+        .footer-logo span { color: #e05c2a; }
+        .footer-desc { color: #888; font-size: 0.85rem; line-height: 1.7; }
+        .footer-col-title { font-weight: 600; font-size: 0.8rem; margin-bottom: 16px; color: #ccc; text-transform: uppercase; letter-spacing: 0.05em; }
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .footer-links a { color: #888; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+        .footer-links a:hover { color: white; }
+        .footer-bottom { border-top: 1px solid #2a2a2a; padding-top: 20px; color: #666; font-size: 0.8rem; text-align: center; }
+
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; z-index: 999;
+            background: #1a1a1a; color: white;
+            border-radius: 10px; padding: 14px 20px; font-size: 0.85rem; font-weight: 500;
+            border-left: 3px solid #22a85a;
+            transform: translateX(120%); transition: transform 0.3s ease; max-width: 260px;
+        }
+        .toast.show { transform: translateX(0); }
+
+        @media (max-width: 768px) {
+            nav { padding: 0 20px; }
+            .nav-links { display: none; }
+            .hero { flex-direction: column; padding: 48px 24px; }
+            .hero h1 { font-size: 2rem; }
+            .hero-stats { flex-direction: row; }
+            .section, .products-section, .banner-wrap, .reviews-section { padding-left: 24px; padding-right: 24px; }
+            .cats-grid { grid-template-columns: repeat(2, 1fr); }
+            .products-grid { grid-template-columns: repeat(2, 1fr); }
+            .reviews-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+            footer { padding: 40px 24px 20px; }
+            .banner { flex-direction: column; text-align: center; padding: 36px 28px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<nav>
+    <a href="index.html" class="logo">Tienda<span>Sara</span></a>
+    <ul class="nav-links">
+        <li><a href="index.html" class="active">Inicio</a></li>
+        <li><a href="galeria.html">Productos</a></li>
+        <li><a href="carrito.html">Carrito</a></li>
+    </ul>
+    <div class="nav-right">
+        <input type="search" class="nav-search" placeholder="Buscar productos...">
+        <a href="carrito.html" class="nav-cart">
+            🛒 Carrito <span class="cart-num" id="cartNum">0</span>
+        </a>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="hero-left">
+        <div class="hero-tag">Nueva colección 2026</div>
+        <h1>Tu tienda favorita, ahora <span>online.</span></h1>
+        <p>Electrónica, ropa, accesorios y más. Todo en un solo lugar con envío rápido a todo México.</p>
+        <div class="hero-btns">
+            <a href="galeria.html" class="btn-main">Ver productos</a>
+            <a href="#categorias" class="btn-outline">Explorar</a>
+        </div>
+    </div>
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <div class="hero-stat-n">48K+</div>
+            <div class="hero-stat-l">Clientes</div>
+        </div>
+        <div class="hero-stat">
+            <div class="hero-stat-n">3.2K</div>
+            <div class="hero-stat-l">Productos</div>
+        </div>
+        <div class="hero-stat">
+            <div class="hero-stat-n">99%</div>
+            <div class="hero-stat-l">Satisfacción</div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="categorias">
+    <div class="section-top">
+        <h2 class="section-title">Categorías</h2>
+        <a href="galeria.html" class="see-all">Ver todas →</a>
+    </div>
+    <div class="cats-grid">
+        <a href="galeria.html" class="cat-card">
+            <div class="cat-icon">💻</div>
+            <div class="cat-name">Electrónica</div>
+            <div class="cat-count">142 productos</div>
+        </a>
+        <a href="galeria.html" class="cat-card">
+            <div class="cat-icon">👗</div>
+            <div class="cat-name">Ropa</div>
+            <div class="cat-count">289 productos</div>
+        </a>
+        <a href="galeria.html" class="cat-card">
+            <div class="cat-icon">⌚</div>
+            <div class="cat-name">Accesorios</div>
+            <div class="cat-count">97 productos</div>
+        </a>
+        <a href="galeria.html" class="cat-card">
+            <div class="cat-icon">🏠</div>
+            <div class="cat-name">Hogar</div>
+            <div class="cat-count">178 productos</div>
+        </a>
+    </div>
+</section>
+
+<section class="products-section">
+    <div class="section-top">
+        <h2 class="section-title">Productos populares</h2>
+        <a href="galeria.html" class="see-all">Ver todos →</a>
+    </div>
+    <div class="products-grid">
+        <div class="product-card">
+            <div class="product-img">🎧 <span class="prod-badge badge-off">-20%</span></div>
+            <div class="product-info">
+                <div class="product-cat">Electrónica</div>
+                <div class="product-name">Audífonos Sony XM5</div>
+                <div class="product-footer">
+                    <div><span class="price-old">$7,499</span><span class="price price-new">$6,399</span></div>
+                    <button class="add-btn" onclick="agregar(this, 'Audífonos Sony')">+</button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-img">👔 <span class="prod-badge badge-new">Nuevo</span></div>
+            <div class="product-info">
+                <div class="product-cat">Ropa</div>
+                <div class="product-name">Camisa Formal Slim Fit</div>
+                <div class="product-footer">
+                    <span class="price">$999</span>
+                    <button class="add-btn" onclick="agregar(this, 'Camisa Formal')">+</button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-img">⌚ <span class="prod-badge badge-off">-15%</span></div>
+            <div class="product-info">
+                <div class="product-cat">Accesorios</div>
+                <div class="product-name">Reloj Smart Watch</div>
+                <div class="product-footer">
+                    <div><span class="price-old">$1,099</span><span class="price price-new">$899</span></div>
+                    <button class="add-btn" onclick="agregar(this, 'Smart Watch')">+</button>
+                </div>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-img">👟</div>
+            <div class="product-info">
+                <div class="product-cat">Ropa</div>
+                <div class="product-name">Tenis Nike Running</div>
+                <div class="product-footer">
+                    <span class="price">$1,999</span>
+                    <button class="add-btn" onclick="agregar(this, 'Zapatillas Running')">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="banner-wrap" style="margin-top: 60px;">
+    <div class="banner">
+        <div>
+            <h2>Hasta 50% de descuento esta semana</h2>
+            <p>En productos seleccionados de temporada. ¡No te lo pierdas!</p>
+        </div>
+        <a href="galeria.html" class="btn-white">Ver ofertas</a>
+    </div>
+</div>
+
+<section class="reviews-section">
+    <div class="section-top">
+        <h2 class="section-title">Lo que dicen nuestros clientes</h2>
+    </div>
+    <div class="reviews-grid">
+        <div class="review-card">
+            <div class="stars">★★★★★</div>
+            <p class="review-text">"Excelente atención y productos de calidad. La entrega llegó antes de lo esperado."</p>
+            <div class="review-author">María García</div>
+        </div>
+        <div class="review-card">
+            <div class="stars">★★★★★</div>
+            <p class="review-text">"Entrega rápida y el producto exactamente como se describe. Definitivamente repetiré."</p>
+            <div class="review-author">Carlos López</div>
+        </div>
+        <div class="review-card">
+            <div class="stars">★★★★★</div>
+            <p class="review-text">"Gran variedad y precios competitivos. Mi tienda favorita sin duda alguna."</p>
+            <div class="review-author">Ana Martínez</div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-grid">
+        <div>
+            <div class="footer-logo">Tienda<span>Sara</span></div>
+            <p class="footer-desc">Tu tienda online de confianza. Calidad garantizada y envíos a todo México.</p>
+        </div>
+        <div>
+            <div class="footer-col-title">Tienda</div>
+            <ul class="footer-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="galeria.html">Productos</a></li>
+                <li><a href="carrito.html">Carrito</a></li>
+            </ul>
+        </div>
+        <div>
+            <div class="footer-col-title">Ayuda</div>
+            <ul class="footer-links">
+                <li><a href="#">Envíos</a></li>
+                <li><a href="#">Devoluciones</a></li>
+                <li><a href="#">Contacto</a></li>
+            </ul>
+        </div>
+        <div>
+            <div class="footer-col-title">Contacto</div>
+            <ul class="footer-links">
+                <li><a href="#">Culiacán Sinaloa.</a></li>
+                <li><a href="#">+52 6671690570</a></li>
+                <li><a href="#">josua013@hotmail.com</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">© 2026 TiendaSara. Todos los derechos reservados.</div>
+</footer>
+
+<script>
+    let count = 0;
+    function agregar(btn, nombre) {
+        count++;
+        document.getElementById('cartNum').textContent = count;
+        btn.classList.add('done');
+        btn.textContent = '✓';
+        setTimeout(() => { btn.classList.remove('done'); btn.textContent = '+'; }, 1400);
+        const t = document.getElementById('toast');
+        t.textContent = '✓ ' + nombre + ' agregado al carrito';
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiTienda — Productos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8f7f4; color: #1a1a1a; }
+
+        nav {
+            background: white; border-bottom: 1px solid #e8e4df;
+            padding: 0 40px; height: 60px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 1.2rem; font-weight: 700; color: #1a1a1a; text-decoration: none; }
+        .logo span { color: #e05c2a; }
+        .nav-links { display: flex; gap: 32px; list-style: none; }
+        .nav-links a { text-decoration: none; color: #666; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: #1a1a1a; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .nav-search { border: 1px solid #e0dbd4; border-radius: 8px; padding: 7px 14px; font-size: 0.85rem; background: #f8f7f4; color: #1a1a1a; width: 180px; font-family: 'Inter', sans-serif; }
+        .nav-search:focus { outline: none; border-color: #e05c2a; }
+        .nav-cart { background: #1a1a1a; color: white; text-decoration: none; padding: 7px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+        .nav-cart:hover { background: #333; }
+        .cart-num { background: #e05c2a; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; }
+
+        
+        .page-header { padding: 32px 40px; background: white; border-bottom: 1px solid #e8e4df; }
+        .breadcrumb { display: flex; align-items: center; gap: 6px; color: #999; font-size: 0.8rem; margin-bottom: 12px; }
+        .breadcrumb a { color: #999; text-decoration: none; }
+        .breadcrumb a:hover { color: #1a1a1a; }
+        .page-title { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+
+   
+        .shop-wrap { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 120px); }
+
+   
+        .sidebar { background: white; border-right: 1px solid #e8e4df; padding: 28px 24px; }
+        .filter-block { margin-bottom: 28px; }
+        .filter-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #999; margin-bottom: 12px; }
+        .filter-search { width: 100%; border: 1px solid #e0dbd4; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif; color: #1a1a1a; background: #f8f7f4; }
+        .filter-search:focus { outline: none; border-color: #e05c2a; }
+        .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .chip {
+            padding: 5px 12px; border-radius: 100px;
+            border: 1px solid #e0dbd4; background: none;
+            font-size: 0.8rem; font-family: 'Inter', sans-serif;
+            cursor: pointer; color: #555; transition: all 0.15s;
+        }
+        .chip:hover { border-color: #1a1a1a; color: #1a1a1a; }
+        .chip.on { background: #1a1a1a; border-color: #1a1a1a; color: white; }
+        .divider { border: none; border-top: 1px solid #e8e4df; margin: 24px 0; }
+        .price-slider { width: 100%; accent-color: #e05c2a; margin: 10px 0 6px; }
+        .price-labels { display: flex; justify-content: space-between; font-size: 0.8rem; color: #666; }
+        .btn-filter {
+            width: 100%; background: #1a1a1a; color: white; border: none;
+            padding: 10px; border-radius: 8px; font-family: 'Inter', sans-serif;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer; margin-top: 4px;
+            transition: background 0.2s;
+        }
+        .btn-filter:hover { background: #e05c2a; }
+        .btn-clear { width: 100%; background: none; color: #999; border: 1px solid #e0dbd4; padding: 9px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.85rem; cursor: pointer; margin-top: 8px; transition: all 0.2s; }
+        .btn-clear:hover { border-color: #1a1a1a; color: #1a1a1a; }
+
+   
+        .products-area { padding: 28px 32px; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .results-text { font-size: 0.85rem; color: #666; }
+        .results-text strong { color: #1a1a1a; }
+        .toolbar-right { display: flex; align-items: center; gap: 12px; }
+        .sort-sel { border: 1px solid #e0dbd4; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif; background: white; cursor: pointer; }
+        .sort-sel:focus { outline: none; }
+        .view-btns { display: flex; gap: 4px; }
+        .view-btn { width: 34px; height: 34px; border: 1px solid #e0dbd4; border-radius: 8px; background: none; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+        .view-btn.on { border-color: #1a1a1a; background: #1a1a1a; color: white; }
+
+        .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .products-grid.list { grid-template-columns: 1fr; }
+        .products-grid.list .product-card { display: grid; grid-template-columns: 160px 1fr; }
+        .products-grid.list .product-img { border-radius: 12px 0 0 12px; height: auto; min-height: 140px; }
+        .products-grid.list .product-info { padding: 20px 24px; display: flex; flex-direction: column; justify-content: space-between; }
+        .products-grid.list .product-desc { display: block !important; }
+
+        .product-card { border: 1px solid #e8e4df; border-radius: 12px; overflow: hidden; background: white; transition: box-shadow 0.2s, border-color 0.2s; }
+        .product-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); border-color: #d0cbc4; }
+        .product-img { background: #f8f7f4; height: 170px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; position: relative; }
+        .prod-badge { position: absolute; top: 10px; left: 10px; padding: 3px 10px; border-radius: 100px; font-size: 0.7rem; font-weight: 700; }
+        .badge-off { background: #e05c2a; color: white; }
+        .badge-new { background: #1a1a1a; color: white; }
+        .badge-hot { background: #f5a623; color: white; }
+        .product-info { padding: 16px; }
+        .product-cat { color: #999; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+        .product-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+        .product-desc { color: #666; font-size: 0.82rem; line-height: 1.6; margin-bottom: 10px; display: none; }
+        .product-rating { display: flex; align-items: center; gap: 5px; margin-bottom: 12px; }
+        .stars-sm { color: #f5a623; font-size: 0.75rem; }
+        .rating-n { color: #999; font-size: 0.75rem; }
+        .product-footer { display: flex; align-items: center; justify-content: space-between; }
+        .price { font-weight: 700; font-size: 1rem; }
+        .price-old { text-decoration: line-through; color: #bbb; font-size: 0.85rem; margin-right: 6px; font-weight: 400; }
+        .price-sale { color: #e05c2a; }
+        .add-btn { background: #1a1a1a; color: white; border: none; width: 34px; height: 34px; border-radius: 8px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .add-btn:hover { background: #e05c2a; }
+        .add-btn.done { background: #22a85a; }
+
+  
+        .pagination { display: flex; justify-content: center; gap: 6px; padding: 40px 0 20px; }
+        .page-btn { width: 38px; height: 38px; border: 1px solid #e0dbd4; border-radius: 8px; background: white; font-family: 'Inter', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; }
+        .page-btn:hover { border-color: #1a1a1a; }
+        .page-btn.on { background: #1a1a1a; border-color: #1a1a1a; color: white; font-weight: 700; }
+        .page-btn:disabled { opacity: 0.4; cursor: default; }
+
+
+        .toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; background: #1a1a1a; color: white; border-radius: 10px; padding: 14px 20px; font-size: 0.85rem; font-weight: 500; border-left: 3px solid #22a85a; transform: translateX(120%); transition: transform 0.3s ease; max-width: 260px; }
+        .toast.show { transform: translateX(0); }
+
+        @media (max-width: 900px) {
+            nav { padding: 0 20px; }
+            .nav-links { display: none; }
+            .shop-wrap { grid-template-columns: 1fr; }
+            .sidebar { border-right: none; border-bottom: 1px solid #e8e4df; padding: 20px; }
+            .products-area { padding: 20px; }
+            .products-grid { grid-template-columns: repeat(2, 1fr); }
+            .page-header { padding: 24px 20px; }
+        }
+        @media (max-width: 480px) {
+            .products-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<nav>
+    <a href="index.html" class="logo">Tienda<span>Sara</span></a>
+    <ul class="nav-links">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="galeria.html" class="active">Productos</a></li>
+        <li><a href="carrito.html">Carrito</a></li>
+    </ul>
+    <div class="nav-right">
+        <input type="search" class="nav-search" placeholder="Buscar productos...">
+        <a href="carrito.html" class="nav-cart">🛒 Carrito <span class="cart-num" id="cartNum">0</span></a>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="breadcrumb">
+        <a href="index.html">Inicio</a> <span>›</span> <span>Productos</span>
+    </div>
+    <h1 class="page-title">Todos los productos</h1>
+</div>
+
+<div class="shop-wrap">
+    <aside class="sidebar">
+        <div class="filter-block">
+            <div class="filter-label">Buscar</div>
+            <input class="filter-search" type="text" placeholder="Nombre del producto..." id="searchBox" oninput="doFilter()">
+        </div>
+
+        <hr class="divider">
+
+        <div class="filter-block">
+            <div class="filter-label">Categoría</div>
+            <div class="chips">
+                <button class="chip on" onclick="setChip(this)">Todas</button>
+                <button class="chip" onclick="setChip(this)" data-cat="Electrónica">Electrónica</button>
+                <button class="chip" onclick="setChip(this)" data-cat="Ropa">Ropa</button>
+                <button class="chip" onclick="setChip(this)" data-cat="Accesorios">Accesorios</button>
+                <button class="chip" onclick="setChip(this)" data-cat="Hogar">Hogar</button>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="filter-block">
+            <div class="filter-label">Precio máximo</div>
+            <input type="range" class="price-slider" min="0" max="1000" value="10000" id="priceRange" oninput="document.getElementById('priceMax').textContent = '$' + parseInt(this.value).toLocaleString()">
+            <div class="price-labels"><span>$0</span><span id="priceMax">$10,000</span></div>
+        </div>
+
+        <button class="btn-filter" onclick="doFilter()">Aplicar filtros</button>
+        <button class="btn-clear" onclick="clearAll()">Limpiar</button>
+    </aside>
+
+    <div class="products-area">
+        <div class="toolbar">
+            <p class="results-text">Mostrando <strong id="countNum">6</strong> productos</p>
+            <div class="toolbar-right">
+                <select class="sort-sel" onchange="doSort(this.value)">
+                    <option value="">Relevancia</option>
+                    <option value="asc">Precio: menor a mayor</option>
+                    <option value="desc">Precio: mayor a menor</option>
+                </select>
+                <div class="view-btns">
+                    <button class="view-btn on" onclick="setView('grid', this)" title="Cuadrícula">⊞</button>
+                    <button class="view-btn" onclick="setView('list', this)" title="Lista">☰</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="products-grid" id="grid">
+
+            <div class="product-card" data-cat="Electrónica" data-price="399" data-name="audífonos bluetooth pro">
+                <div class="product-img">🎧 <span class="prod-badge badge-off">-20%</span></div>
+                <div class="product-info">
+                    <div class="product-cat">Electrónica</div>
+                    <div class="product-name">Audífonos Sony XM5</div>
+                    <div class="product-desc">Cancelación de ruido activa. Batería 30 horas. Bluetooth 5.3.</div>
+                    <div class="product-rating"><span class="stars-sm">★★★★★</span><span class="rating-n">(248)</span></div>
+                    <div class="product-footer">
+                        <div><span class="price-old">$7,499</span><span class="price price-sale">$6,399</span></div>
+                        <button class="add-btn" onclick="agregar(this, 'Audífonos Bluetooth Pro')">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="Ropa" data-price="299" data-name="camisa formal blanca">
+                <div class="product-img">👔 <span class="prod-badge badge-new">Nuevo</span></div>
+                <div class="product-info">
+                    <div class="product-cat">Ropa</div>
+                    <div class="product-name">Camisa Formal Blanca</div>
+                    <div class="product-desc">Algodón 100%. Corte slim fit. Tallas S a XXL disponibles.</div>
+                    <div class="product-rating"><span class="stars-sm">★★★★☆</span><span class="rating-n">(87)</span></div>
+                    <div class="product-footer">
+                        <span class="price">$999</span>
+                        <button class="add-btn" onclick="agregar(this, 'Camisa Formal')">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="Accesorios" data-price="899" data-name="reloj smart watch">
+                <div class="product-img">⌚ <span class="prod-badge badge-hot">-15%</span></div>
+                <div class="product-info">
+                    <div class="product-cat">Accesorios</div>
+                    <div class="product-name">Reloj Smart Watch</div>
+                    <div class="product-desc">GPS, monitoreo de salud, resistente al agua 50m. Batería 7 días.</div>
+                    <div class="product-rating"><span class="stars-sm">★★★★★</span><span class="rating-n">(312)</span></div>
+                    <div class="product-footer">
+                        <div><span class="price-old">$1,099</span><span class="price price-sale">$899</span></div>
+                        <button class="add-btn" onclick="agregar(this, 'Smart Watch')">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="Ropa" data-price="599" data-name="zapatillas running">
+                <div class="product-img">👟</div>
+                <div class="product-info">
+                    <div class="product-cat">Ropa</div>
+                    <div class="product-name">Tenis Nike Running</div>
+                    <div class="product-desc">Suela de amortiguación. Transpirable. Tallas 24 a 32.</div>
+                    <div class="product-rating"><span class="stars-sm">★★★★☆</span><span class="rating-n">(165)</span></div>
+                    <div class="product-footer">
+                        <span class="price">$1,999</span>
+                        <button class="add-btn" onclick="agregar(this, 'Zapatillas Running')">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="Electrónica" data-price="2499" data-name="tablet 10 pulgadas">
+                <div class="product-img">📱 <span class="prod-badge badge-new">Popular</span></div>
+                <div class="product-info">
+                    <div class="product-cat">Electrónica</div>
+                    <div class="product-name">Tablet Huawei 10" </div>
+                    <div class="product-desc">Pantalla AMOLED, 128GB, 8GB RAM. Batería 8000mAh.</div>
+                    <div class="product-rating"><span class="stars-sm">★★★★★</span><span class="rating-n">(421)</span></div>
+                    <div class="product-footer">
+                        <span class="price">$8,499</span>
+                        <button class="add-btn" onclick="agregar(this, 'Tablet 10 pulgadas')">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="Hogar" data-price="349" data-name="lámpara mesa led">
+                <div class="product-img">💡</div>
+                <div class="product-info">
+                    <div class="product-cat">Hogar</div>
+                    <div class="product-name">Lámpara de Mesa LED</div>
+                    <div class="product-desc">Luz regulable en 3 tonos. Carga inalámbrica integrada.</div>
+                    <div class="product-rating"><span class="stars-sm">★★★★☆</span><span class="rating-n">(93)</span></div>
+                    <div class="product-footer">
+                        <span class="price">$349</span>
+                        <button class="add-btn" onclick="agregar(this, 'Lámpara LED')">+</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="pagination">
+            <button class="page-btn" disabled>‹</button>
+            <button class="page-btn on">1</button>
+            <button class="page-btn" onclick="changePage(this)">2</button>
+            <button class="page-btn" onclick="changePage(this)">3</button>
+            <button class="page-btn">›</button>
+        </div>
+    </div>
+</div>
+
+<footer style="background: #1a1a1a; color: white; padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <span style="font-weight: 700; font-size: 1.1rem;">Tienda<span style="color:#e05c2a">Sara</span></span>
+    <span style="color: #666; font-size: 0.8rem;">© 2026 TiendaSara. Todos los derechos reservados.</span>
+    <div style="display:flex; gap:20px;">
+        <a href="index.html" style="color:#888; text-decoration:none; font-size:0.85rem;">Inicio</a>
+        <a href="galeria.html" style="color:white; text-decoration:none; font-size:0.85rem; font-weight:600;">Productos</a>
+        <a href="carrito.html" style="color:#888; text-decoration:none; font-size:0.85rem;">Carrito</a>
+    </div>
+</footer>
+
+<script>
+    let cart = 0;
+    function agregar(btn, nombre) {
+        cart++;
+        document.getElementById('cartNum').textContent = cart;
+        btn.classList.add('done'); btn.textContent = '✓';
+        setTimeout(() => { btn.classList.remove('done'); btn.textContent = '+'; }, 1400);
+        const t = document.getElementById('toast');
+        t.textContent = '✓ ' + nombre + ' agregado'; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function setChip(btn) {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+        btn.classList.add('on');
+    }
+
+    function doFilter() {
+        const query = document.getElementById('searchBox').value.toLowerCase();
+        const maxPrice = parseInt(document.getElementById('priceRange').value);
+        const activeChip = document.querySelector('.chip.on');
+        const catFilter = activeChip?.dataset.cat || null;
+        let vis = 0;
+        document.querySelectorAll('.product-card').forEach(card => {
+            const name = card.dataset.name;
+            const cat = card.dataset.cat;
+            const price = parseInt(card.dataset.price);
+            const ok = name.includes(query) && price <= maxPrice && (!catFilter || cat === catFilter);
+            card.style.display = ok ? '' : 'none';
+            if (ok) vis++;
+        });
+        document.getElementById('countNum').textContent = vis;
+    }
+
+    function clearAll() {
+        document.getElementById('searchBox').value = '';
+        document.getElementById('priceRange').value = 3000;
+        document.getElementById('priceMax').textContent = '$3,000';
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+        document.querySelector('.chip').classList.add('on');
+        document.querySelectorAll('.product-card').forEach(c => c.style.display = '');
+        document.getElementById('countNum').textContent = '6';
+    }
+
+    function doSort(val) {
+        const grid = document.getElementById('grid');
+        const cards = [...grid.querySelectorAll('.product-card')];
+        if (val === 'asc') cards.sort((a,b) => a.dataset.price - b.dataset.price);
+        else if (val === 'desc') cards.sort((a,b) => b.dataset.price - a.dataset.price);
+        cards.forEach(c => grid.appendChild(c));
+    }
+
+    function setView(mode, btn) {
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        document.getElementById('grid').classList.toggle('list', mode === 'list');
+    }
+
+    function changePage(btn) {
+        document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+    }
+</script>
+</body>
+</html>

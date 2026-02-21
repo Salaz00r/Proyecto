@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiTienda — Carrito</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8f7f4; color: #1a1a1a; }
+
+        nav {
+            background: white; border-bottom: 1px solid #e8e4df;
+            padding: 0 40px; height: 60px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 1.2rem; font-weight: 700; color: #1a1a1a; text-decoration: none; }
+        .logo span { color: #e05c2a; }
+        .nav-links { display: flex; gap: 32px; list-style: none; }
+        .nav-links a { text-decoration: none; color: #666; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: #1a1a1a; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .nav-search { border: 1px solid #e0dbd4; border-radius: 8px; padding: 7px 14px; font-size: 0.85rem; background: #f8f7f4; color: #1a1a1a; width: 180px; font-family: 'Inter', sans-serif; }
+        .nav-search:focus { outline: none; border-color: #e05c2a; }
+        .nav-badge { background: #1a1a1a; color: white; padding: 7px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .cart-num { background: #e05c2a; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; }
+
+        /* PAGE HEADER */
+        .page-header { padding: 32px 40px; background: white; border-bottom: 1px solid #e8e4df; }
+        .breadcrumb { display: flex; align-items: center; gap: 6px; color: #999; font-size: 0.8rem; margin-bottom: 12px; }
+        .breadcrumb a { color: #999; text-decoration: none; }
+        .breadcrumb a:hover { color: #1a1a1a; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+        .continue-link { color: #e05c2a; text-decoration: none; font-size: 0.85rem; font-weight: 500; }
+        .continue-link:hover { text-decoration: underline; }
+
+        /* STEPS */
+        .steps { display: flex; align-items: center; padding: 20px 40px; background: white; border-bottom: 1px solid #e8e4df; gap: 0; }
+        .step { display: flex; align-items: center; gap: 8px; }
+        .step-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #e0dbd4; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: #aaa; }
+        .step.active .step-dot { background: #e05c2a; border-color: #e05c2a; color: white; }
+        .step-name { font-size: 0.85rem; color: #aaa; }
+        .step.active .step-name { color: #1a1a1a; font-weight: 600; }
+        .step-line { flex: 1; height: 1px; background: #e0dbd4; margin: 0 16px; max-width: 80px; }
+
+        /* LAYOUT */
+        .cart-layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; padding: 32px 40px; align-items: start; }
+
+        /* CART ITEMS */
+        .cart-box { background: white; border: 1px solid #e8e4df; border-radius: 12px; overflow: hidden; }
+        .cart-box-header { padding: 20px 24px; border-bottom: 1px solid #e8e4df; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; }
+        .item-count-txt { color: #999; font-size: 0.85rem; font-weight: 400; }
+
+        .cart-item { display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-bottom: 1px solid #f0ece7; transition: background 0.15s; }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item:hover { background: #fafaf8; }
+        .item-emoji { width: 72px; height: 72px; background: #f8f7f4; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0; }
+        .item-details { flex: 1; }
+        .item-cat { color: #999; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
+        .item-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+        .item-tags { display: flex; gap: 6px; }
+        .item-tag { background: #f0ece7; color: #666; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+        .item-price-col { text-align: center; min-width: 80px; }
+        .item-price { font-weight: 700; font-size: 0.95rem; }
+        .item-old { text-decoration: line-through; color: #bbb; font-size: 0.8rem; display: block; }
+        .item-sale { color: #e05c2a; }
+        .qty-control { display: flex; align-items: center; border: 1px solid #e0dbd4; border-radius: 8px; overflow: hidden; }
+        .qty-btn { width: 34px; height: 34px; background: none; border: none; font-size: 1rem; cursor: pointer; color: #1a1a1a; transition: background 0.15s; display: flex; align-items: center; justify-content: center; }
+        .qty-btn:hover { background: #f0ece7; }
+        .qty-num { width: 34px; text-align: center; font-size: 0.9rem; font-weight: 600; border: none; background: none; pointer-events: none; }
+        .item-sub { text-align: right; min-width: 80px; }
+        .sub-label { color: #999; font-size: 0.75rem; margin-bottom: 2px; }
+        .sub-val { font-weight: 700; font-size: 1rem; }
+        .item-remove-btn { background: none; border: none; color: #ccc; font-size: 1.1rem; cursor: pointer; padding: 4px; transition: color 0.15s; line-height: 1; }
+        .item-remove-btn:hover { color: #e05c2a; }
+
+        /* CART FOOTER */
+        .cart-box-footer { padding: 16px 24px; border-top: 1px solid #e8e4df; display: flex; justify-content: space-between; align-items: center; }
+        .btn-ghost { background: none; border: 1px solid #e0dbd4; color: #666; padding: 8px 18px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; text-decoration: none; display: inline-block; }
+        .btn-ghost:hover { border-color: #1a1a1a; color: #1a1a1a; }
+
+        /* RECOMMENDED */
+        .rec-box { background: white; border: 1px solid #e8e4df; border-radius: 12px; padding: 20px 24px; margin-top: 20px; }
+        .rec-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 16px; }
+        .rec-items { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+        .rec-items::-webkit-scrollbar { height: 4px; }
+        .rec-items::-webkit-scrollbar-thumb { background: #e0dbd4; border-radius: 2px; }
+        .rec-card { flex: 0 0 130px; border: 1px solid #e8e4df; border-radius: 10px; overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
+        .rec-card:hover { border-color: #e05c2a; }
+        .rec-img { height: 80px; background: #f8f7f4; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+        .rec-info { padding: 10px; }
+        .rec-name { font-size: 0.78rem; font-weight: 600; margin-bottom: 4px; line-height: 1.3; }
+        .rec-price { font-size: 0.8rem; color: #e05c2a; font-weight: 700; margin-bottom: 6px; }
+        .rec-add { width: 100%; background: #f0ece7; border: none; color: #1a1a1a; padding: 5px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.15s; }
+        .rec-add:hover { background: #e05c2a; color: white; }
+
+        /* SUMMARY */
+        .summary-box { background: white; border: 1px solid #e8e4df; border-radius: 12px; overflow: hidden; position: sticky; top: 80px; }
+        .summary-header { padding: 20px 24px; border-bottom: 1px solid #e8e4df; font-weight: 600; font-size: 0.95rem; }
+
+        .summary-body { padding: 24px; }
+
+        /* SHIPPING */
+        .opt-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #999; margin-bottom: 10px; }
+        .shipping-opt { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1.5px solid #e8e4df; border-radius: 8px; cursor: pointer; margin-bottom: 6px; transition: border-color 0.15s; }
+        .shipping-opt.selected { border-color: #e05c2a; background: #fff7f4; }
+        .shipping-opt-l { display: flex; align-items: center; gap: 10px; }
+        .s-radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #d0cbc4; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+        .shipping-opt.selected .s-radio { border-color: #e05c2a; }
+        .s-radio-inner { width: 7px; height: 7px; border-radius: 50%; background: #e05c2a; display: none; }
+        .shipping-opt.selected .s-radio-inner { display: block; }
+        .s-name { font-size: 0.85rem; font-weight: 600; }
+        .s-days { font-size: 0.75rem; color: #999; }
+        .s-price { font-size: 0.85rem; font-weight: 700; }
+        .s-free { color: #22a85a; }
+
+        /* COUPON */
+        .coupon-area { margin: 20px 0; }
+        .coupon-row { display: flex; gap: 8px; }
+        .coupon-input { flex: 1; border: 1px solid #e0dbd4; border-radius: 8px; padding: 9px 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif; transition: border-color 0.2s; }
+        .coupon-input:focus { outline: none; border-color: #e05c2a; }
+        .coupon-btn { background: #1a1a1a; color: white; border: none; padding: 9px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.15s; white-space: nowrap; }
+        .coupon-btn:hover { background: #e05c2a; }
+        .coupon-ok { color: #22a85a; font-size: 0.8rem; margin-top: 6px; display: none; }
+
+        /* TOTALS */
+        .totals { border-top: 1px solid #e8e4df; padding-top: 16px; }
+        .total-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; font-size: 0.9rem; }
+        .total-lbl { color: #666; }
+        .total-val { font-weight: 600; }
+        .total-green { color: #22a85a; }
+        .total-discount { color: #e05c2a; }
+        .total-final { border-top: 1px solid #e8e4df; margin-top: 8px; padding-top: 14px; }
+        .total-final .total-lbl { font-weight: 700; color: #1a1a1a; font-size: 1rem; }
+        .total-final .total-val { font-size: 1.3rem; font-weight: 700; }
+
+        .checkout-btn { width: 100%; background: #e05c2a; color: white; border: none; padding: 15px; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .checkout-btn:hover { background: #c94d1e; }
+        .checkout-btn:disabled { background: #22a85a; cursor: default; }
+        .secure-note { text-align: center; color: #999; font-size: 0.78rem; margin-top: 12px; }
+        .pay-methods { display: flex; justify-content: center; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .pay-tag { background: #f0ece7; color: #666; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
+
+        /* TOAST */
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); z-index: 999; background: #1a1a1a; color: white; border-radius: 10px; padding: 12px 20px; font-size: 0.85rem; font-weight: 500; border-left: 3px solid #22a85a; transition: transform 0.3s ease; opacity: 0; white-space: nowrap; }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        @media (max-width: 960px) {
+            .cart-layout { grid-template-columns: 1fr; padding: 20px 24px; }
+            .summary-box { position: static; }
+            nav { padding: 0 20px; }
+            .nav-links { display: none; }
+            .steps { padding: 16px 20px; }
+            .page-header { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<nav>
+    <a href="index.html" class="logo">Tienda<span>Sara</span></a>
+    <ul class="nav-links">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="galeria.html">Productos</a></li>
+        <li><a href="carrito.html" class="active">Carrito</a></li>
+    </ul>
+    <div class="nav-right">
+        <input type="search" class="nav-search" placeholder="Buscar productos...">
+        <div class="nav-badge">🛒 Carrito <span class="cart-num" id="cartNum">3</span></div>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="breadcrumb">
+        <a href="index.html">Inicio</a> <span>›</span> <span>Carrito</span>
+    </div>
+    <div class="header-row">
+        <h1 class="page-title">Tu carrito</h1>
+        <a href="galeria.html" class="continue-link">← Seguir comprando</a>
+    </div>
+</div>
+
+<div class="steps">
+    <div class="step active"><div class="step-dot">1</div><div class="step-name">Carrito</div></div>
+    <div class="step-line"></div>
+    <div class="step"><div class="step-dot">2</div><div class="step-name">Envío</div></div>
+    <div class="step-line"></div>
+    <div class="step"><div class="step-dot">3</div><div class="step-name">Pago</div></div>
+    <div class="step-line"></div>
+    <div class="step"><div class="step-dot">4</div><div class="step-name">Confirmación</div></div>
+</div>
+
+<div class="cart-layout">
+    <div>
+        <!-- CART ITEMS -->
+        <div class="cart-box">
+            <div class="cart-box-header">
+                Productos <span class="item-count-txt" id="itemCountLabel">3 artículos</span>
+            </div>
+
+            <div class="cart-item" id="row-1" data-price="6399">
+                <div class="item-emoji">🎧</div>
+                <div class="item-details">
+                    <div class="item-cat">Electrónica</div>
+                    <div class="item-name">Audífonos Sony XM5</div>
+                    <div class="item-tags"><span class="item-tag">Negro</span><span class="item-tag">Bluetooth 5.3</span></div>
+                </div>
+                <div class="item-price-col">
+                    <span class="item-old">$7,499</span>
+                    <span class="item-price item-sale">$6,399</span>
+                </div>
+                <div class="qty-control">
+                    <button class="qty-btn" onclick="cambiarQty('row-1', -1)">−</button>
+                    <span class="qty-num" id="qty-row-1">1</span>
+                    <button class="qty-btn" onclick="cambiarQty('row-1', 1)">+</button>
+                </div>
+                <div class="item-sub">
+                    <div class="sub-label">Subtotal</div>
+                    <div class="sub-val" id="sub-row-1">$6,399</div>
+                </div>
+                <button class="item-remove-btn" onclick="eliminar('row-1')" title="Eliminar">✕</button>
+            </div>
+
+            <div class="cart-item" id="row-2" data-price="999">
+                <div class="item-emoji">👔</div>
+                <div class="item-details">
+                    <div class="item-cat">Ropa</div>
+                    <div class="item-name">Camisa Formal Blanca</div>
+                    <div class="item-tags"><span class="item-tag">Talla M</span><span class="item-tag">Blanco</span></div>
+                </div>
+                <div class="item-price-col">
+                    <span class="item-price">$999</span>
+                </div>
+                <div class="qty-control">
+                    <button class="qty-btn" onclick="cambiarQty('row-2', -1)">−</button>
+                    <span class="qty-num" id="qty-row-2">2</span>
+                    <button class="qty-btn" onclick="cambiarQty('row-2', 1)">+</button>
+                </div>
+                <div class="item-sub">
+                    <div class="sub-label">Subtotal</div>
+                    <div class="sub-val" id="sub-row-2">$598</div>
+                </div>
+                <button class="item-remove-btn" onclick="eliminar('row-2')" title="Eliminar">✕</button>
+            </div>
+
+            <div class="cart-item" id="row-3" data-price="899">
+                <div class="item-emoji">⌚</div>
+                <div class="item-details">
+                    <div class="item-cat">Accesorios</div>
+                    <div class="item-name">Reloj Smart Watch</div>
+                    <div class="item-tags"><span class="item-tag">Plateado</span><span class="item-tag">40mm</span></div>
+                </div>
+                <div class="item-price-col">
+                    <span class="item-old">$1,099</span>
+                    <span class="item-price item-sale">$899</span>
+                </div>
+                <div class="qty-control">
+                    <button class="qty-btn" onclick="cambiarQty('row-3', -1)">−</button>
+                    <span class="qty-num" id="qty-row-3">1</span>
+                    <button class="qty-btn" onclick="cambiarQty('row-3', 1)">+</button>
+                </div>
+                <div class="item-sub">
+                    <div class="sub-label">Subtotal</div>
+                    <div class="sub-val" id="sub-row-3">$899</div>
+                </div>
+                <button class="item-remove-btn" onclick="eliminar('row-3')" title="Eliminar">✕</button>
+            </div>
+
+            <div class="cart-box-footer">
+                <a href="galeria.html" class="btn-ghost">← Seguir comprando</a>
+                <button class="btn-ghost" onclick="toast('Carrito actualizado')">↻ Actualizar</button>
+            </div>
+        </div>
+
+        <!-- RECOMMENDED -->
+        <div class="rec-box">
+            <div class="rec-title">También te puede gustar</div>
+            <div class="rec-items">
+                <div class="rec-card">
+                    <div class="rec-img">📱</div>
+                    <div class="rec-info">
+                        <div class="rec-name">Tablet Huawei 10"</div>
+                        <div class="rec-price">$8,499</div>
+                        <button class="rec-add" onclick="toast('Tablet agregada')">+ Agregar</button>
+                    </div>
+                </div>
+                <div class="rec-card">
+                    <div class="rec-img">👟</div>
+                    <div class="rec-info">
+                        <div class="rec-name">Tenis Nike Running</div>
+                        <div class="rec-price">$1,999</div>
+                        <button class="rec-add" onclick="toast('Zapatillas agregadas')">+ Agregar</button>
+                    </div>
+                </div>
+                <div class="rec-card">
+                    <div class="rec-img">💡</div>
+                    <div class="rec-info">
+                        <div class="rec-name">Lámpara LED Desk</div>
+                        <div class="rec-price">$349</div>
+                        <button class="rec-add" onclick="toast('Lámpara agregada')">+ Agregar</button>
+                    </div>
+                </div>
+                <div class="rec-card">
+                    <div class="rec-img">🎒</div>
+                    <div class="rec-info">
+                        <div class="rec-name">Mochila Urban</div>
+                        <div class="rec-price">$449</div>
+                        <button class="rec-add" onclick="toast('Mochila agregada')">+ Agregar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ORDER SUMMARY -->
+    <div class="summary-box">
+        <div class="summary-header">Resumen del pedido</div>
+        <div class="summary-body">
+
+            <div class="opt-label">Método de envío</div>
+            <div class="shipping-opt selected" onclick="selectEnvio(this, 0)">
+                <div class="shipping-opt-l">
+                    <div class="s-radio"><div class="s-radio-inner"></div></div>
+                    <div><div class="s-name">Estándar</div><div class="s-days">5-7 días hábiles</div></div>
+                </div>
+                <div class="s-price s-free">Gratis</div>
+            </div>
+            <div class="shipping-opt" onclick="selectEnvio(this, 99)">
+                <div class="shipping-opt-l">
+                    <div class="s-radio"><div class="s-radio-inner"></div></div>
+                    <div><div class="s-name">Express</div><div class="s-days">2-3 días hábiles</div></div>
+                </div>
+                <div class="s-price">$99</div>
+            </div>
+            <div class="shipping-opt" onclick="selectEnvio(this, 199)">
+                <div class="shipping-opt-l">
+                    <div class="s-radio"><div class="s-radio-inner"></div></div>
+                    <div><div class="s-name">Same Day</div><div class="s-days">Hoy antes de 8pm</div></div>
+                </div>
+                <div class="s-price">$199</div>
+            </div>
+
+            <div class="coupon-area">
+                <div class="opt-label" style="margin-top:16px;">Cupón de descuento</div>
+                <div class="coupon-row">
+                    <input type="text" class="coupon-input" id="couponInput" placeholder="Ej. DESCUENTO10">
+                    <button class="coupon-btn" onclick="aplicarCupon()">Aplicar</button>
+                </div>
+                <div class="coupon-ok" id="couponOk">✓ Cupón aplicado — 10% de descuento</div>
+            </div>
+
+            <div class="totals">
+                <div class="total-row">
+                    <span class="total-lbl">Subtotal (<span id="qtyTotal">4</span> artículos)</span>
+                    <span class="total-val" id="subtotalEl">$7,896</span>
+                </div>
+                <div class="total-row">
+                    <span class="total-lbl">Envío</span>
+                    <span class="total-val total-green" id="envioEl">Gratis</span>
+                </div>
+                <div class="total-row" id="discRow" style="display:none;">
+                    <span class="total-lbl">Descuento</span>
+                    <span class="total-val total-discount" id="discEl">-$189.60</span>
+                </div>
+                <div class="total-row">
+                    <span class="total-lbl">IVA (16%)</span>
+                    <span class="total-val" id="ivaEl">$303.36</span>
+                </div>
+                <div class="total-row total-final">
+                    <span class="total-lbl">Total</span>
+                    <span class="total-val" id="totalEl">$8,199.36</span>
+                </div>
+            </div>
+
+            <button class="checkout-btn" id="checkoutBtn" onclick="checkout()">
+                🔒 Proceder al pago
+            </button>
+            <div class="secure-note">Compra 100% segura y encriptada</div>
+            <div class="pay-methods">
+                <span class="pay-tag">VISA</span>
+                <span class="pay-tag">Mastercard</span>
+                <span class="pay-tag">AMEX</span>
+                <span class="pay-tag">PayPal</span>
+                <span class="pay-tag">OXXO</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer style="background: #1a1a1a; color: white; padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 24px;">
+    <span style="font-weight: 700; font-size: 1.1rem;">Tienda<span style="color:#e05c2a">Sara</span></span>
+    <span style="color: #666; font-size: 0.8rem;">© 2026 TiendaSara. Todos los derechos reservados.</span>
+    <div style="display:flex; gap:20px;">
+        <a href="index.html" style="color:#888; text-decoration:none; font-size:0.85rem;">Inicio</a>
+        <a href="galeria.html" style="color:#888; text-decoration:none; font-size:0.85rem;">Productos</a>
+    </div>
+</footer>
+
+<script>
+    // ── State
+    const items = {
+        'row-1': { price: 399, qty: 1 },
+        'row-2': { price: 299, qty: 2 },
+        'row-3': { price: 899, qty: 1 }
+    };
+    let envio = 0, cupon = false;
+
+    // ── Toast
+    function toast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = '✓ ' + msg;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 2400);
+    }
+
+    // ── Recalculate
+    function recalc() {
+        let sub = 0, qty = 0;
+        for (const id in items) { sub += items[id].price * items[id].qty; qty += items[id].qty; }
+        const desc = cupon ? sub * 0.1 : 0;
+        const iva = (sub - desc + envio) * 0.16;
+        const total = sub - desc + envio + iva;
+
+        document.getElementById('subtotalEl').textContent = '$' + sub.toLocaleString();
+        document.getElementById('qtyTotal').textContent = qty;
+        document.getElementById('ivaEl').textContent = '$' + iva.toFixed(2);
+        document.getElementById('totalEl').textContent = '$' + total.toFixed(2);
+
+        if (cupon) {
+            document.getElementById('discEl').textContent = '-$' + desc.toFixed(2);
+            document.getElementById('discRow').style.display = 'flex';
+        }
+
+        const rows = Object.keys(items).length;
+        document.getElementById('itemCountLabel').textContent = rows + ' artículo' + (rows !== 1 ? 's' : '');
+        document.getElementById('cartNum').textContent = rows;
+    }
+
+    // ── Qty
+    function cambiarQty(id, delta) {
+        const newQty = Math.max(1, items[id].qty + delta);
+        items[id].qty = newQty;
+        document.getElementById('qty-' + id).textContent = newQty;
+        document.getElementById('sub-' + id).textContent = '$' + (items[id].price * newQty).toLocaleString();
+        recalc();
+    }
+
+    // ── Remove
+    function eliminar(id) {
+        const row = document.getElementById(id);
+        row.style.transition = 'opacity 0.25s, transform 0.25s';
+        row.style.opacity = '0';
+        row.style.transform = 'translateX(-16px)';
+        setTimeout(() => {
+            row.remove();
+            delete items[id];
+            recalc();
+            toast('Producto eliminado del carrito');
+        }, 250);
+    }
+
+    // ── Shipping
+    function selectEnvio(el, costo) {
+        document.querySelectorAll('.shipping-opt').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        envio = costo;
+        const el2 = document.getElementById('envioEl');
+        el2.textContent = costo === 0 ? 'Gratis' : '$' + costo;
+        el2.className = 'total-val ' + (costo === 0 ? 'total-green' : '');
+        recalc();
+    }
+
+    // ── Coupon
+    function aplicarCupon() {
+        const val = document.getElementById('couponInput').value.trim().toUpperCase();
+        if (val === 'DESCUENTO10' || val === 'PROMO' || val === 'MITIENDA') {
+            cupon = true;
+            document.getElementById('couponOk').style.display = 'block';
+            recalc();
+            toast('Cupón aplicado: -10%');
+        } else {
+            toast('Código de cupón no válido');
+        }
+    }
+
+    // ── Checkout
+    function checkout() {
+        const btn = document.getElementById('checkoutBtn');
+        btn.textContent = '⏳ Procesando...';
+        btn.disabled = true;
+        setTimeout(() => {
+            btn.textContent = '✓ Pedido confirmado';
+            toast('¡Pedido confirmado! Gracias por tu compra');
+        }, 1500);
+    }
+</script>
+</body>
+</html>
